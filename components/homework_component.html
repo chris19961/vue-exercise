@@ -135,19 +135,11 @@
   <div>
     <h4>關注城市</h4>
     <div class="card-columns">
-      <div class="card status-aqi2">
-        <div class="card-header">苗栗縣 - 三義
-          <a href="#" class="float-right"><i class="fas fa-star"></i></a>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li>AQI 指數: 54</li>
-            <li>PM2.5: 8</li>
-            <li>說明: 普通</li>
-          </ul>
-          2018-05-20 16:00
-        </div>
-      </div>
+      <site-component 
+      :local-data="item" 
+      v-for="item in staredSites"
+      v-on:sendstarstatus="updateStarStatus"
+      ></site-component>
     </div>
   </div>
   
@@ -157,17 +149,16 @@
     <site-component 
       :local-data="item" 
       v-for="item in filteredSites"
-
+      v-on:sendstarstatus="updateStarStatus"
       ></site-component>
   </div>
 </div>
 
-
 <script type="text/x-template" id="cityCard">
   <div class="card" :class="statusColor">
     <div class="card-header">{{localData.County}} - {{localData.SiteName}}
-      <a href="#" class="float-right" @click.prevent="isStarred = !isStarred" v-show="isStarred == false"><i class="far fa-star"></i></a>
-      <a href="#" class="float-right" @click.prevent="isStarred = !isStarred" v-show="isStarred == true"><i class="fas fa-star"></i></a>
+      <a href="#" class="float-right" v-show="localData.defaultStar== false" @click.prevent="starStatusChange"><i class="far fa-star"></i></a>
+      <a href="#" class="float-right" v-show="localData.defaultStar == true" @click.prevent="starStatusChange"><i class="fas fa-star"></i></a>
     </div>
     <div class="card-body">
       <ul class="list-unstyled">
@@ -186,10 +177,11 @@
 Vue.component('siteComponent', {
   props: ['localData'], 
   template: '#cityCard', 
-  data: function(){
-    return {
-      isStarred: false, 
-    }
+  methods: {
+    starStatusChange: function() {
+      console.log(this.localData.SiteName);
+      this.$emit('sendstarstatus', this.localData.SiteName);
+    }, 
   }, 
   computed: {
     statusColor: function() {
@@ -237,18 +229,46 @@ var app = new Vue({
         console.log(response);
         console.log(ls);
       });
-    },
+    }, 
+    updateStarStatus: function(siteName) {
+      if (this.stared.indexOf(siteName) == -1) {
+        this.stared.push(siteName);
+      } else {
+        this.stared.splice(this.stared.indexOf(siteName), 1)
+      }
+    }
   }, 
   created: function() {this.getData()}, 
   computed: {
     filteredSites: function() {
+      let vm = this.data; 
+      let result = []; 
+      for (i = 0; i < vm.length; i++) {
+        if(this.stared.indexOf(vm[i].SiteName) === -1) {
+          vm[i]['defaultStar'] = false;
+          result.push(vm[i]);
+        } else {
+          vm[i]['defaultStar'] = true;
+          result.push(vm[i]);
+        }
+      };
       if (this.filter == '') {
-        return this.data;
+        return vm;
       } else {
-        return this.data.filter(item=>{
-          return item.County == this.filter;
-        })
+        return result;
       }
+    }, 
+    staredSites: function() {
+      let vm = this.data; 
+      vm.forEach(element => element['defaultStar'] = true);
+      let result = []; 
+      for (i = 0; i < vm.length; i++) {
+        if(this.stared.indexOf(vm[i].SiteName) !== -1) {
+          vm[i]['defaultStar'] = true;
+          result.push(vm[i]);
+        }
+      }
+      return result
     }
   }
 });
