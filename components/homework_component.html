@@ -137,8 +137,9 @@
     <div class="card-columns">
       <site-component 
       :local-data="item" 
-      v-for="item in staredSites"
+      v-for="(item, key) in staredSites"
       v-on:sendstarstatus="updateStarStatus"
+      :key="item.SiteName"
       ></site-component>
     </div>
   </div>
@@ -148,8 +149,9 @@
   <div class="card-columns">
     <site-component 
       :local-data="item" 
-      v-for="item in filteredSites"
+      v-for="(item, key) in filteredSites"
       v-on:sendstarstatus="updateStarStatus"
+      :key="item.SiteName"
       ></site-component>
   </div>
 </div>
@@ -157,7 +159,7 @@
 <script type="text/x-template" id="cityCard">
   <div class="card" :class="statusColor">
     <div class="card-header">{{localData.County}} - {{localData.SiteName}}
-      <a href="#" class="float-right" v-show="localData.defaultStar== false" @click.prevent="starStatusChange"><i class="far fa-star"></i></a>
+      <a href="#" class="float-right" v-show="localData.defaultStar == false" @click.prevent="starStatusChange"><i class="far fa-star"></i></a>
       <a href="#" class="float-right" v-show="localData.defaultStar == true" @click.prevent="starStatusChange"><i class="fas fa-star"></i></a>
     </div>
     <div class="card-body">
@@ -179,7 +181,6 @@ Vue.component('siteComponent', {
   template: '#cityCard', 
   methods: {
     starStatusChange: function() {
-      console.log(this.localData.SiteName);
       this.$emit('sendstarstatus', this.localData.SiteName);
     }, 
   }, 
@@ -226,8 +227,6 @@ var app = new Vue({
           } else {}          
         });
         vm.location = ls;
-        console.log(response);
-        console.log(ls);
       });
     }, 
     updateStarStatus: function(siteName) {
@@ -245,26 +244,26 @@ var app = new Vue({
       let result = []; 
       for (i = 0; i < vm.length; i++) {
         if(this.stared.indexOf(vm[i].SiteName) === -1) {
-          vm[i]['defaultStar'] = false;
+          // vm[i]['defaultStar'] = false;
+          Vue.set(vm[i], 'defaultStar', false); 
           result.push(vm[i]);
         } else {
-          vm[i]['defaultStar'] = true;
+          // vm[i]['defaultStar'] = true;
+          Vue.set(vm[i], 'defaultStar', true); 
           result.push(vm[i]);
         }
       };
-      if (this.filter == '') {
-        return vm;
-      } else {
-        return result;
-      }
+      return result;
     }, 
     staredSites: function() {
       let vm = this.data; 
-      vm.forEach(element => element['defaultStar'] = true);
+      // vm.forEach(element => Vue.set(element, 'defaultStar', true));
+      // vm.forEach(element => element['defaultStar'] = true);
       let result = []; 
       for (i = 0; i < vm.length; i++) {
         if(this.stared.indexOf(vm[i].SiteName) !== -1) {
-          vm[i]['defaultStar'] = true;
+          // vm[i]['defaultStar'] = true;
+          Vue.set(vm[i], 'defaultStar', true);
           result.push(vm[i]);
         }
       }

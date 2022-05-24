@@ -127,14 +127,38 @@ const people = [
 
 // forEach 與 map
 // 將所有物件增加 icash 有多少金額的欄位
+people.forEach(item => {
+  item.icash = item.money + 500;
+});
+console.log(people)
 
+const newPeople = people.map(item => {
+  return {
+    ...item, 
+    icash: item.money + 500
+  }
+})
 
 // filter
 // 挑出金額少於 5000 的物件
+const filterPeople = people.filter(el => {
+  if (el.money > 500) {
+    return true
+  }
+}); 
+console.log('filterPeople: ', filterPeople)
+
 
 // find
 // 1. 找到金額 = 500 的物件
 // 2. 找到 > 5000 的物件
+const findPeople = people.find(el => {
+  if (el.money == 500) {
+    return true
+  }
+}); 
+console.log('findPeople: ', findPeople)
+
 
 // every
 // 1. 所有物件是否都超過 10000 元
